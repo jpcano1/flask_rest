@@ -1,3 +1,7 @@
 flask
 flask-sqlalchemy
 pymysql
+flask-marshmallow
+marshmallow_sqlalchemy
+psycopg2
+python-dotenv
