@@ -1,4 +1,6 @@
-from flask import Flask, logging
+import logging
+import sys
+from flask import Flask
 from api.utils.database import db
 from api.utils.responses import response_with
 import api.utils.responses as resp
@@ -10,6 +12,7 @@ import os
 
 # Blueprints
 from api.routes.authors import author_routes
+from api.routes.books import book_routes
 
 load_dotenv(find_dotenv())
 
@@ -34,20 +37,24 @@ def add_header(response):
 
 @app.errorhandler(400)
 def bad_request(error):
-    return response_with(resp.BAD_REQUEST_400, value={
-        "error_message": str(error)
-    })
+    logging.error(error)
+    return response_with(resp.BAD_REQUEST_400)
 
 @app.errorhandler(500)
 def server_error(error):
-    return response_with(resp.SERVER_ERROR_500, value={
-        "error_message": str(error)
-    })
+    logging.error(error)
+    return response_with(resp.SERVER_ERROR_500)
 
 @app.errorhandler(404)
 def not_found(error):
-    return response_with(resp.SERVER_ERROR_404, value={
-        "error_message": str(error)
-    })
+    logging.error(error)
+    return response_with(resp.SERVER_ERROR_404)
+
+logging.basicConfig(
+    stream=sys.stdout,
+    format="%(asctime)s|%(levelname)s|%(filename)s: %(lineno)s| %(message)s",
+    level=logging.DEBUG
+)
 
 app.register_blueprint(author_routes, url_prefix="/api/authors")
+app.register_blueprint(book_routes, url_prefix="/api/books")
