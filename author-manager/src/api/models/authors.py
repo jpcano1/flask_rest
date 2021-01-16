@@ -1,7 +1,7 @@
 from ..utils import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
-from books import BookSchema
+from .books import BookSchema
 
 class Author(db.Model):
     __tablename__ = "authors"
