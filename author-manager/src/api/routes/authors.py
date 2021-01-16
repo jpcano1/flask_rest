@@ -3,6 +3,7 @@ from ..utils.responses import response_with
 from ..utils import responses as resp
 from ..models import Author, AuthorSchema
 from ..utils import db
+import copy
 
 author_routes = Blueprint("author_routes", __name__)
 
@@ -28,6 +29,7 @@ def get_author_list():
         "id",
         "first_name",
         "last_name",
+        "books"
     ])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={
@@ -43,6 +45,24 @@ def get_author_detail(author_id):
         "last_name"
     ])
     author = author_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={
+        "author": author
+    })
+
+@author_routes.route("/<int:id>", methods=["PUT"])
+def update_author_detail(id):
+    data = request.get_json()
+    fetched = Author.query.get_or_404(id)
+    fetched_copy = copy.copy(fetched)
+    fetched.first_name = data.get("first_name",
+                                  fetched_copy.first_name)
+    fetched.last_name = data.get("last_name",
+                                 fetched_copy.last_name)
+    db.session.add(fetched)
+    db.session.commit()
+    author_schema = AuthorSchema()
+    author = author_schema.dump(fetched)
+    del fetched_copy
     return response_with(resp.SUCCESS_200, value={
         "author": author
     })
