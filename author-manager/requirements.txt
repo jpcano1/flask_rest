@@ -4,3 +4,4 @@ flask-marshmallow
 marshmallow_sqlalchemy
 psycopg2
 python-dotenv
+marshmallow
