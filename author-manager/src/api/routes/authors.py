@@ -24,6 +24,7 @@ def create_author():
 
 @author_routes.route("/", methods=["GET"])
 def get_author_list():
+    print(request.method)
     fetched = Author.query.all()
     author_schema = AuthorSchema(many=True, only=[
         "id",
@@ -49,20 +50,43 @@ def get_author_detail(author_id):
         "author": author
     })
 
-@author_routes.route("/<int:id>", methods=["PUT"])
+@author_routes.route("/<int:id>", methods=["PUT", "PATCH"])
 def update_author_detail(id):
+    method = request.method
     data = request.get_json()
     fetched = Author.query.get_or_404(id)
-    fetched_copy = copy.copy(fetched)
-    fetched.first_name = data.get("first_name",
-                                  fetched_copy.first_name)
-    fetched.last_name = data.get("last_name",
-                                 fetched_copy.last_name)
+    if method == "PUT":
+        try:
+            fetched.first_name = data["first_name"]
+            fetched.last_name = data["last_name"]
+        except KeyError as e:
+            return response_with(resp.INVALID_INPUT_422, value={
+                "error_message": "Data lacks of fields, use PATCH instead"
+            })
+
+    elif method == "PATCH":
+        fetched_copy = copy.copy(fetched)
+        fetched.first_name = data.get("first_name",
+                                      fetched_copy.first_name)
+        fetched.last_name = data.get("last_name",
+                                     fetched_copy.last_name)
+        del fetched_copy
     db.session.add(fetched)
     db.session.commit()
-    author_schema = AuthorSchema()
+    author_schema = AuthorSchema(only=[
+        "id",
+        "first_name",
+        "last_name",
+        "books"
+    ])
     author = author_schema.dump(fetched)
-    del fetched_copy
     return response_with(resp.SUCCESS_200, value={
         "author": author
     })
+
+@author_routes.route("/<int:id>", methods=["DELETE"])
+def delete_author(id):
+    fetched = Author.query.get_or_404(id)
+    db.session.delete(fetched)
+    db.session.commit()
+    return response_with(resp.SUCCESS_204)
