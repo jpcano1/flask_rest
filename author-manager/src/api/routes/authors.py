@@ -24,7 +24,6 @@ def create_author():
 
 @author_routes.route("/", methods=["GET"])
 def get_author_list():
-    print(request.method)
     fetched = Author.query.all()
     author_schema = AuthorSchema(many=True, only=[
         "id",
