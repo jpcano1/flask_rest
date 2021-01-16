@@ -17,5 +17,32 @@ def create_author():
             "author": result
         })
     except Exception as e:
-        print(e)
-        return response_with(resp.INVALID_INPUT_422)
+        return response_with(resp.INVALID_INPUT_422, value={
+            "error_response": str(e)
+        })
+
+@author_routes.route("/", methods=["GET"])
+def get_author_list():
+    fetched = Author.query.all()
+    author_schema = AuthorSchema(many=True, only=[
+        "id",
+        "first_name",
+        "last_name",
+    ])
+    authors = author_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={
+        "authors": authors
+    })
+
+@author_routes.route("/<int:author_id>", methods=["GET"])
+def get_author_detail(author_id):
+    fetched = Author.query.get_or_404(author_id)
+    author_schema = AuthorSchema(only=[
+        "id",
+        "first_name",
+        "last_name"
+    ])
+    author = author_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={
+        "author": author
+    })
