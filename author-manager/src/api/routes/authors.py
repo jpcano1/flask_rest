@@ -3,11 +3,13 @@ from ..utils.responses import response_with
 from ..utils import responses as resp
 from ..models import Author, AuthorSchema
 from ..utils import db
+from flask_jwt_extended import jwt_required
 import copy
 
 author_routes = Blueprint("author_routes", __name__)
 
 @author_routes.route("/", methods=["POST"])
+@jwt_required
 def create_author():
     try:
         data = request.get_json()

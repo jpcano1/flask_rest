@@ -1,18 +1,19 @@
 import logging
 import sys
 from flask import Flask
-from api.utils.database import db
-from api.utils.responses import response_with
+from api.utils import response_with, db
 import api.utils.responses as resp
-from api.config.config import (DevelopmentConfig,
-                               ProductionConfig,
-                               TestingConfig)
+from api.config import (DevelopmentConfig,
+                        ProductionConfig,
+                        TestingConfig)
 from dotenv import load_dotenv, find_dotenv
+from flask_jwt_extended import JWTManager
 import os
 
 # Blueprints
-from api.routes.authors import author_routes
-from api.routes.books import book_routes
+from api.routes import (author_routes,
+                        book_routes,
+                        user_routes)
 
 load_dotenv(find_dotenv())
 
@@ -26,6 +27,8 @@ else:
     app_config = DevelopmentConfig
 
 app.config.from_object(app_config)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", None)
+jwt = JWTManager(app)
 
 db.init_app(app)
 with app.app_context():
@@ -58,3 +61,4 @@ logging.basicConfig(
 
 app.register_blueprint(author_routes, url_prefix="/api/authors")
 app.register_blueprint(book_routes, url_prefix="/api/books")
+app.register_blueprint(user_routes, url_prefix="/api/users")
