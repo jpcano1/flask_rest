@@ -23,7 +23,7 @@ class User(db.Model):
         return cls.query.filter_by(username=username).first()
 
     @classmethod
-    def fin_by_email(cls, email):
+    def find_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
     @staticmethod
