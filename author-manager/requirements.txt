@@ -7,3 +7,5 @@ python-dotenv
 marshmallow
 passlib
 flask-jwt-extended
+itsdangerous
+Flask-Mail

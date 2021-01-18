@@ -27,7 +27,6 @@ else:
     app_config = DevelopmentConfig
 
 app.config.from_object(app_config)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", None)
 jwt = JWTManager(app)
 
 db.init_app(app)
