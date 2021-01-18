@@ -1,6 +1,6 @@
 import logging
 import sys
-from flask import Flask
+from flask import Flask, send_from_directory
 from api.utils import response_with, db, mail
 import api.utils.responses as resp
 from api.config import (DevelopmentConfig,
@@ -52,6 +52,10 @@ def server_error(error):
 def not_found(error):
     logging.error(error)
     return response_with(resp.SERVER_ERROR_404)
+
+@app.route("/avatar/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 logging.basicConfig(
     stream=sys.stdout,

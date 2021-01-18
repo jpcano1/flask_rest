@@ -1,10 +1,19 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, url_for, current_app
 from ..utils.responses import response_with
 from ..utils import responses as resp
 from ..models import Author, AuthorSchema
 from ..utils import db
 from flask_jwt_extended import jwt_required
 import copy
+from werkzeug.utils import secure_filename
+
+import sys
+import os
+
+allowed_extensions = {"image/jpeg", "image/png", "jpeg"}
+
+def allowed_file(filetype):
+    return filetype in allowed_extensions
 
 author_routes = Blueprint("author_routes", __name__)
 
@@ -51,6 +60,7 @@ def get_author_detail(author_id):
         "author": author
     })
 
+@jwt_required
 @author_routes.route("/<int:id>", methods=["PUT", "PATCH"])
 def update_author_detail(id):
     method = request.method
@@ -85,9 +95,40 @@ def update_author_detail(id):
         "author": author
     })
 
+@jwt_required
 @author_routes.route("/<int:id>", methods=["DELETE"])
 def delete_author(id):
     fetched = Author.query.get_or_404(id)
     db.session.delete(fetched)
     db.session.commit()
     return response_with(resp.SUCCESS_204)
+
+@jwt_required
+@author_routes.route("/avatar/<int:id>", methods=["POST"])
+def set_author_avatar(id):
+    try:
+        fetched = Author.query.get_or_404(id)
+        file = request.files.get("avatar", None)
+        if file and allowed_file(file.content_type):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(
+                current_app.config["UPLOAD_FOLDER"],
+                filename
+            ))
+        else:
+            return response_with(resp.INVALID_INPUT_422, value={
+                "message": "There is no file"
+            })
+        fetched.avatar = url_for("uploaded_file",
+                                 filename=filename,
+                                 _external=True)
+        db.session.add(fetched)
+        db.session.commit()
+        author_schema = AuthorSchema()
+        author = author_schema.dump(fetched)
+        return response_with(resp.SUCCESS_200, value={
+            "author": author
+        })
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return response_with(resp.INVALID_INPUT_422)

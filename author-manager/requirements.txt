@@ -9,3 +9,4 @@ passlib
 flask-jwt-extended
 itsdangerous
 Flask-Mail
+werkzeug

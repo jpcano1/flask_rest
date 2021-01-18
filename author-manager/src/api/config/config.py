@@ -12,6 +12,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    UPLOAD_FOLDER = "images"
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = "<Production DB URL>"
@@ -23,6 +24,9 @@ class ProductionConfig(Config):
     MAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
     MAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
     MAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL")
+    MAIL_DEBUG = False
+
+    UPLOAD_FOLDER = None
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -40,6 +44,7 @@ class DevelopmentConfig(Config):
     # MAIL_USE_TLS = True
     # MAIL_USE_SSL = False
     # MAIL_SUPPRESS_SEND = True
+    # MAIL_DEBUG = True
 
     MAIL_DEFAULT_SENDER = os.environ.get("EMAIL_SENDER")
     MAIL_SERVER = os.environ.get("EMAIL_SERVER")
