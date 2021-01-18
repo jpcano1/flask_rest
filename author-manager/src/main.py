@@ -1,7 +1,7 @@
 import logging
 import sys
 from flask import Flask
-from api.utils import response_with, db
+from api.utils import response_with, db, mail
 import api.utils.responses as resp
 from api.config import (DevelopmentConfig,
                         ProductionConfig,
@@ -28,6 +28,7 @@ else:
 
 app.config.from_object(app_config)
 jwt = JWTManager(app)
+mail.init_app(app)
 
 db.init_app(app)
 with app.app_context():
